@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+
+# Виртуальное окружение
+venv/
+.venv
+ENV/
+
+# IDE (PyCharm, VS Code и др.)
+.idea/
+.vscode/
+
+# Системные файлы
+.DS_Store
+Thumbs.db
