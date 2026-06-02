@@ -15,7 +15,7 @@ pipeline {
 
         stage('Setup Python virtual environment') {
             steps {
-                sh '''
+                bat '''
                     python -m venv ${VENV}
                     . ${VENV}/bin/activate
                     pip install --upgrade pip
@@ -26,7 +26,7 @@ pipeline {
 
         stage('Run pytest') {
             steps {
-                sh '''
+                bat '''
                     . ${VENV}/bin/activate
                     pytest --junitxml=results/pytest.xml --cov=src --cov-report=xml:results/coverage.xml
                 '''
