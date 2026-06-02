@@ -35,9 +35,7 @@ pipeline {
 
         stage('Publish results') {
             steps {
-                junit 'results/pytest.xml'
-                // Для покрытия можно использовать плагин Cobertura
-                cobertura coberturaReportFile: 'results/coverage.xml'
+                junit testResults: "${TEST_REPORT_DIR}\\pytest.xml"
             }
         }
     }
