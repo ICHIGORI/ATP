@@ -2,53 +2,72 @@ pipeline {
     agent any
 
     environment {
-        // Путь к виртуальному окружению
-        VENV = '.venv'
+        VENV_DIR = '.venv'
+        TEST_REPORT_DIR = 'test-reports'
     }
 
     stages {
-        stage('Checkout') {
+        stage('Setup Environment') {
             steps {
-                checkout scm
-            }
-        }
-
-        stage('Setup Python virtual environment') {
-            steps {
-                bat '''
-                    python -m venv %VENV%
-                    call %VENV%\\Scripts\\activate.bat
+                // Очистка рабочей директории
+                cleanWs()
+                // Создание виртуального окружения Python
+                bat """
+                    python -m venv %VENV_DIR%
+                    call %VENV_DIR%\\Scripts\\activate.bat
                     python -m pip install --upgrade pip
-                    pip install -r requirements.txt
-                '''
+                """
             }
         }
 
-        stage('Run pytest') {
+        stage('Install Dependencies') {
             steps {
-                bat '''
-                    . ${VENV}/bin/activate
-                    pytest --junitxml=results/pytest.xml --cov=src --cov-report=xml:results/coverage.xml
-                '''
+                bat """
+                    call %VENV_DIR%\\Scripts\\activate.bat
+                    if exist requirements.txt (
+                        pip install -r requirements.txt
+                    ) else (
+                        echo requirements.txt not found, skipping...
+                    )
+                """
             }
         }
 
-        stage('Publish results') {
+        stage('Linting') {
             steps {
-                junit 'results/pytest.xml'
-                // Для покрытия можно использовать плагин Cobertura
-                cobertura coberturaReportFile: 'results/coverage.xml'
+                bat """
+                    call %VENV_DIR%\\Scripts\\activate.bat
+                    pip install flake8
+                    flake8 . --exit-zero
+                """
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                bat """
+                    if not exist %TEST_REPORT_DIR% mkdir %TEST_REPORT_DIR%
+                    call %VENV_DIR%\\Scripts\\activate.bat
+                    pytest -v --junitxml=%TEST_REPORT_DIR%\\pytest-results.xml
+                """
+            }
+            post {
+                always {
+                    junit testResults: "${TEST_REPORT_DIR}\\pytest-results.xml"
+                }
             }
         }
     }
 
     post {
         always {
-            // Очистка workspace или виртуального окружения при необходимости
-            cleanWs()
+            echo 'Pipeline finished on Windows agent.'
+        }
+        success {
+            echo 'All tests passed!'
         }
         failure {
-            echo 'Тесты завершились с ошибкой!'
+            echo 'Pipeline failed. Check console output.'
         }
     }
 }
