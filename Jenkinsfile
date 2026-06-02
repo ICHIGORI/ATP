@@ -1,73 +1,54 @@
 pipeline {
-    // 1. Указываем, где выполнять сборку. 'any' - на любом доступном агенте Jenkins.
     agent any
 
-    // 2. Определяем этапы (stages) нашего конвейера
+    environment {
+        // Путь к виртуальному окружению
+        VENV = '.venv'
+    }
+
     stages {
-        stage('Checkout & Info') {
+        stage('Checkout') {
             steps {
-                // Jenkins сам клонирует репозиторий, но мы добавим информативный вывод.
-                script {
-                    // Выводим имя ветки, которую сейчас собираем
-                    def branchName = env.BRANCH_NAME
-                    echo "Сборка для ветки: ${branchName}"
-                }
+                checkout scm
             }
         }
 
-        stage('Setup Environment') {
+        stage('Setup Python virtual environment') {
             steps {
-                echo 'Установка Python и зависимостей...'
-                // Эти команды выполняются для каждой ветки в отдельном workspace
-                bat '''
-                    REM Проверка версии Python (должна быть в PATH на Jenkins-агенте)
-                    python --version
-
-                    REM Создание виртуального окружения (опционально, но рекомендуется)
-                    python -m venv venv
-
-                    REM Активация окружения и установка зависимостей
-                    call venv\\Scripts\\activate
+                sh '''
+                    python -m venv ${VENV}
+                    . ${VENV}/bin/activate
                     pip install --upgrade pip
                     pip install -r requirements.txt
                 '''
             }
         }
 
-        stage('Run Pytest') {
+        stage('Run pytest') {
             steps {
-                echo 'Запуск тестов...'
-                bat '''
-                    call venv\\Scripts\\activate
-                    REM Команда для запуска pytest.
-                    REM --maxfail=1 остановит прогон после первого упавшего теста
-                    REM --tb=short сделает вывод ошибок более кратким
-                    REM --junitxml=report.xml создаст отчёт в формате JUnit для Jenkins
-                    pytest --maxfail=1 --tb=short --junitxml=report.xml
+                sh '''
+                    . ${VENV}/bin/activate
+                    pytest --junitxml=results/pytest.xml --cov=src --cov-report=xml:results/coverage.xml
                 '''
             }
         }
 
-        stage('Publish Reports') {
+        stage('Publish results') {
             steps {
-                echo 'Публикация отчёта о тестировании...'
-                // Публикуем XML-отчёт, созданный pytest
-                junit 'report.xml'
+                junit 'results/pytest.xml'
+                // Для покрытия можно использовать плагин Cobertura
+                cobertura coberturaReportFile: 'results/coverage.xml'
             }
         }
     }
 
-    // 3. Блок, который выполняется в конце всегда, вне зависимости от результата
     post {
-        success {
-            echo 'Поздравляю! Все тесты для этой ветки прошли успешно.'
+        always {
+            // Очистка workspace или виртуального окружения при необходимости
+            cleanWs()
         }
         failure {
-            echo 'В этой ветке есть падающие тесты. Пожалуйста, проверьте консоль.'
-        }
-        always {
-            echo 'Работа пайплайна завершена.'
-            cleanWs() // Опционально: удаляет временные файлы сборки, чтобы сэкономить место
+            echo 'Тесты завершились с ошибкой!'
         }
     }
 }
