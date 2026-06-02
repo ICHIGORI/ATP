@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        // Путь к виртуальному окружению
         VENV = '.venv'
+        TEST_REPORT_DIR = 'results'   // <-- добавлено
     }
 
     stages {
@@ -27,8 +27,9 @@ pipeline {
         stage('Run pytest') {
             steps {
                 bat '''
+                    if not exist %TEST_REPORT_DIR% mkdir %TEST_REPORT_DIR%
                     call .venv/Scripts/activate.bat
-                    pytest --junitxml=results/pytest.xml --cov=src --cov-report=xml:results/coverage.xml
+                    pytest --junitxml=%TEST_REPORT_DIR%\\pytest.xml --cov=src --cov-report=xml:%TEST_REPORT_DIR%\\coverage.xml
                 '''
             }
         }
@@ -42,11 +43,13 @@ pipeline {
 
     post {
         always {
-            // Очистка workspace или виртуального окружения при необходимости
             cleanWs()
         }
         failure {
             echo 'Тесты завершились с ошибкой!'
+        }
+        success {
+            echo 'Все тесты пройдены успешно!'
         }
     }
 }
