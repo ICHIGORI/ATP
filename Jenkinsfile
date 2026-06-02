@@ -17,7 +17,7 @@ pipeline {
             steps {
                 bat '''
                     python -m venv .venv
-                    call .venv\Scripts\activate.bat
+                    call .venv/Scripts/activate.bat
                     pip install --upgrade pip
                     pip install -r requirements.txt
                 '''
@@ -27,7 +27,7 @@ pipeline {
         stage('Run pytest') {
             steps {
                 bat '''
-                    call .venv\Scripts\activate.bat
+                    call .venv/Scripts/activate.bat
                     pytest --junitxml=results/pytest.xml --cov=src --cov-report=xml:results/coverage.xml
                 '''
             }
