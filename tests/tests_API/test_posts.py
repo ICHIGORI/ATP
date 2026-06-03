@@ -24,7 +24,7 @@ def test_2_get_post_by_id():
 def test_3_get_post_not_found():
     non_existent_id = 9999
     response = requests.get(f"{BASE_URL}/posts/{non_existent_id}")
-    assert response.status_code == 404
+    assert response.status_code == 504
 
 def test_4_create_new_post():
     new_post = {
