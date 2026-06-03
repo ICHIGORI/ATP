@@ -4,6 +4,8 @@ import requests
 BASE_URL = "https://jsonplaceholder.typicode.com"
 
 #Позитивный
+@pytest.mark.smoke
+@pytest.mark.regression
 def test_1_put():
     data_id = 1
     new_post = {

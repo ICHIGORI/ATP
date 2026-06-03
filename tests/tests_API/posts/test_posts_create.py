@@ -4,6 +4,8 @@ import requests
 BASE_URL = "https://jsonplaceholder.typicode.com"
 
 #Позитивный
+@pytest.mark.smoke
+@pytest.mark.regression
 def test_1_create_new_post_with_post():
     new_post = {
         "title": "foo",
@@ -18,6 +20,7 @@ def test_1_create_new_post_with_post():
     assert data_json["userId"] == new_post["userId"]
     assert "id" in data_json
 
+@pytest.mark.regression
 def test_2_create_new_post_with_put():
     new_post = {
         "id": 1,
@@ -33,6 +36,7 @@ def test_2_create_new_post_with_put():
     assert data_json["userId"] == new_post["userId"]
     assert "id" in data_json
 
+@pytest.mark.regression
 def test_3_create_new_post():
     new_post = {
         "title": "foo",

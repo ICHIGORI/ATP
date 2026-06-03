@@ -4,6 +4,7 @@ import requests
 BASE_URL = "https://jsonplaceholder.typicode.com"
 
 #Негативный
+@pytest.mark.regression
 def test_1_put():
     data_id = 0
     new_post = {
@@ -15,6 +16,7 @@ def test_1_put():
     response = requests.put(f"{BASE_URL}/posts/{data_id}", json=new_post)
     assert response.status_code == 500
 
+@pytest.mark.regression
 def test_2_put():
     data_id = 1
     new_post = {

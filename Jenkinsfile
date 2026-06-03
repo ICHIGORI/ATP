@@ -25,13 +25,29 @@ pipeline {
             }
         }
 
-        stage('Run pytest') {
+        stage('Create report dir') {
+            steps {
+            bat 'if not exist %TEST_REPORT_DIR% mkdir %TEST_REPORT_DIR%'
+            }
+        }
+
+        stage('Run pytest smoke')
+        {
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     bat '''
-                        if not exist %TEST_REPORT_DIR% mkdir %TEST_REPORT_DIR%
                         call .venv/Scripts/activate.bat
-                        pytest --junitxml=%TEST_REPORT_DIR%/pytest.xml --cov=src --cov-report=xml:%TEST_REPORT_DIR%\\coverage.xml
+                        pytest --junitxml=%TEST_REPORT_DIR%/pytest.xml --cov=src --cov-report=xml:%TEST_REPORT_DIR%/coverage.xml -m smoke
+                    '''
+                }
+            }
+        }
+        stage('Run pytest regression') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    bat '''
+                        call .venv/Scripts/activate.bat
+                        pytest --junitxml=%TEST_REPORT_DIR%/pytest.xml --cov=src --cov-report=xml:%TEST_REPORT_DIR%/coverage.xml -m regression
                     '''
                 }
             }
@@ -39,7 +55,7 @@ pipeline {
 
         stage('Publish results') {
             steps {
-                junit testResults: "${TEST_REPORT_DIR}\\pytest.xml"
+                junit testResults: "${TEST_REPORT_DIR}/pytest.xml"
             }
         }
     }
