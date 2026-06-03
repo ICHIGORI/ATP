@@ -9,6 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+            echo 'Проверка кода в Git ркпозитории...'
                 checkout scm
             }
         }
@@ -29,7 +30,7 @@ pipeline {
                 bat '''
                     if not exist %TEST_REPORT_DIR% mkdir %TEST_REPORT_DIR%
                     call .venv/Scripts/activate.bat
-                    pytest --junitxml=%TEST_REPORT_DIR%\\pytest.xml --cov=src --cov-report=xml:%TEST_REPORT_DIR%\\coverage.xml
+                    pytest --junitxml=%TEST_REPORT_DIR%/pytest.xml --cov=src --cov-report=xml:%TEST_REPORT_DIR%\\coverage.xml
                 '''
             }
         }
