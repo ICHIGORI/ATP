@@ -27,11 +27,13 @@ pipeline {
 
         stage('Run pytest') {
             steps {
-                bat '''
-                    if not exist %TEST_REPORT_DIR% mkdir %TEST_REPORT_DIR%
-                    call .venv/Scripts/activate.bat
-                    pytest --junitxml=%TEST_REPORT_DIR%/pytest.xml --cov=src --cov-report=xml:%TEST_REPORT_DIR%\\coverage.xml
-                '''
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    bat '''
+                        if not exist %TEST_REPORT_DIR% mkdir %TEST_REPORT_DIR%
+                        call .venv/Scripts/activate.bat
+                        pytest --junitxml=%TEST_REPORT_DIR%/pytest.xml --cov=src --cov-report=xml:%TEST_REPORT_DIR%\\coverage.xml
+                    '''
+                }
             }
         }
 
