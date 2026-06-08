@@ -5,6 +5,7 @@ pipeline {
     stages {
         stage('Build Docker image') {
             steps {
+                //Тестим связку Git-Webhook Jenkins Docker
                 // Используем bat, потому что это Windows
                 bat 'docker build -t my-pytest-tests .'
             }
@@ -21,7 +22,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Cleanup') {
             steps {
                 // Удаляем образ после тестов, чтобы не занимать место
