@@ -9,9 +9,14 @@ pipeline {
                 bat 'docker build -t my-pytest-tests .'
             }
         }
-        stage('Run tests') {
+        stage('Run smoke tests') {
             steps {
-                bat 'docker run --rm my-pytest-tests'
+                bat 'docker run --rm my-pytest-tests pytest -v -m smoke'
+            }
+        }
+        stage('Run regression tests') {
+            steps {
+                bat 'docker run --rm my-pytest-tests pytest -v -m regression'
             }
         }
         stage('Cleanup') {
