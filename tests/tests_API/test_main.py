@@ -2,7 +2,7 @@ import pytest
 import requests
 
 BASE_URL = "https://jsonplaceholder.typicode.com"
-
+#test
 def test_1_get_all_posts():
     response = requests.get(f"{BASE_URL}/posts")
     assert response.status_code == 200
