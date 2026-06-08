@@ -1,61 +1,23 @@
 pipeline {
+    // Агент может быть любой – Jenkins будет использовать главный сервер
     agent any
 
-    environment {
-        VENV = '.venv'
-        TEST_REPORT_DIR = 'results'   // <-- добавлено
-    }
-
     stages {
-        stage('Checkout') {
+        stage('Build Docker image') {
             steps {
-            echo 'Проверка кода в Git ркпозитории...'
-                checkout scm
+                // Используем bat, потому что это Windows
+                bat 'docker build -t my-pytest-tests .'
             }
         }
-
-        stage('Setup Python virtual environment') {
+        stage('Run tests') {
             steps {
-                bat '''
-                    python -m venv .venv
-                    call .venv/Scripts/activate.bat
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
-                '''
+                bat 'docker run --rm my-pytest-tests'
             }
         }
-
-        stage('Create report dir') {
+        stage('Cleanup') {
             steps {
-            bat 'if not exist %TEST_REPORT_DIR% mkdir %TEST_REPORT_DIR%'
-            }
-        }
-
-        stage('Run pytest smoke')
-        {
-            steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    bat '''
-                        call .venv/Scripts/activate.bat
-                        pytest --junitxml=%TEST_REPORT_DIR%/pytest.xml --cov=src --cov-report=xml:%TEST_REPORT_DIR%/coverage.xml -m smoke
-                    '''
-                }
-            }
-        }
-        stage('Run pytest regression') {
-            steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    bat '''
-                        call .venv/Scripts/activate.bat
-                        pytest --junitxml=%TEST_REPORT_DIR%/pytest.xml --cov=src --cov-report=xml:%TEST_REPORT_DIR%/coverage.xml -m regression
-                    '''
-                }
-            }
-        }
-
-        stage('Publish results') {
-            steps {
-                junit testResults: "${TEST_REPORT_DIR}/pytest.xml"
+                // Удаляем образ после тестов, чтобы не занимать место
+                bat 'docker rmi my-pytest-tests'
             }
         }
     }
