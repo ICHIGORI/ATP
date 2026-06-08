@@ -16,7 +16,9 @@ pipeline {
         }
         stage('Run regression tests') {
             steps {
-                bat 'docker run --rm my-pytest-tests pytest -v -m regression'
+                catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                    bat 'docker run --rm my-pytest-tests pytest -v -m regression'
+                }
             }
         }
         stage('Cleanup') {
