@@ -1,5 +1,5 @@
 pipeline {
-    //test tuna Uzver-Test
+    //test tuna Блюхера 7
     // Агент может быть любой – Jenkins будет использовать главный сервер
     agent any
 
