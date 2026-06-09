@@ -3,6 +3,16 @@ pipeline {
     agent any
 
     stages {
+        stage('Set Build Name') {
+            steps {
+                wrap([$class: 'BuildUser']) {
+                    script {
+                        // Изменяем имя сборки на "Имя пользователя - #Номер сборки"
+                        currentBuild.displayName = "${env.BUILD_USER} - #${env.BUILD_NUMBER}"
+                    }
+                }
+            }
+        }
         stage('Build Docker image') {
             steps {
                 // Используем bat, потому что это Windows
