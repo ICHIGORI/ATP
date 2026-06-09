@@ -1,5 +1,5 @@
 pipeline {
-    // test new branch for Jenkins user access
+    // test new branch for Jenkins user access +1 test
     // Агент может быть любой – Jenkins будет использовать главный сервер
     agent any
     options {
