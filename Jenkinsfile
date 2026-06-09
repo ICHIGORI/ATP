@@ -1,11 +1,16 @@
 pipeline {
+    // test new branch for Jenkins user access
     // Агент может быть любой – Jenkins будет использовать главный сервер
     agent any
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '30')) // Хранить последние 30 сборок
+        withBuildUser() // Активируем переменные с информацией о пользователе
+    }
 
     stages {
         stage('Build Docker image') {
             steps {
-                // Используем bat, потому что это Windows
+                
                 bat 'docker build -t my-pytest-tests .'
             }
         }
