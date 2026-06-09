@@ -6,7 +6,7 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '30')) // Хранить последние 30 сборок
     }
 
-    stage('Get User') {
+    stages('Get User') {
             steps {
                 // Вот так правильно — withBuildUser как шаг
                 withBuildUser {
