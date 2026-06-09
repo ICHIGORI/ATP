@@ -8,8 +8,16 @@ pipeline {
             steps {
                 wrap([$class: 'BuildUser']) {
                     script {
-                        // Изменяем имя сборки на "Имя пользователя - #Номер сборки"
-                        currentBuild.displayName = "${env.BUILD_USER} - #${env.BUILD_NUMBER}"
+                        // Выполняем Git-команду, чтобы получить имя автора последнего коммита
+                        // Команда: git log -1 --pretty=format:'%an'
+                        def authorName = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
+
+                        // Формируем новое имя сборки (например, "Автор - #123")
+                        currentBuild.displayName = "${authorName} - #${env.BUILD_NUMBER}"
+
+                        // (Опционально) Можно также установить описание сборки, добавив, например, хеш коммита
+                        def commitHash = sh(script: "git log -1 --pretty=format:'%h'", returnStdout: true).trim()
+                        currentBuild.description = "Commit: ${commitHash}"
                     }
                 }
             }
