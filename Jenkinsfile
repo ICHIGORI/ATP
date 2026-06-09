@@ -4,7 +4,17 @@ pipeline {
     agent any
     options {
         buildDiscarder(logRotator(numToKeepStr: '30')) // Хранить последние 30 сборок
-        withBuildUser() // Активируем переменные с информацией о пользователе
+    }
+
+    stage('Get User') {
+            steps {
+                // Вот так правильно — withBuildUser как шаг
+                withBuildUser {
+                    script {
+                        echo "Build initiated by: ${env.BUILD_USER_ID}"
+                    }
+                }
+            }
     }
 
     stages {
