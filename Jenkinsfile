@@ -7,16 +7,6 @@ pipeline {
     }
 
     stages {
-        stage('Get User') {
-            steps {
-                // Вот так правильно — withBuildUser как шаг
-                withBuildUser {
-                    script {
-                        echo "Build initiated by: ${env.BUILD_USER_ID}"
-                    }
-                }
-            }
-        }
 
         stage('Build Docker image') {
             steps {
