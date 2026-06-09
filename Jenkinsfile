@@ -4,7 +4,7 @@ pipeline {
     agent any
     options {
         buildDiscarder(logRotator(numToKeepStr: '30')) // Хранить последние 30 сборок
-        //withBuildUser() // Активируем переменные с информацией о пользователе
+        withBuildUser() // Активируем переменные с информацией о пользователе
     }
 
     stages {
