@@ -1,6 +1,4 @@
 pipeline {
-    //test tuna Блюхера 7
-    // Агент может быть любой – Jenkins будет использовать главный сервер
     agent any
 
     stages {
@@ -8,11 +6,8 @@ pipeline {
             steps {
                 wrap([$class: 'BuildUser']) {
                     script {
-                        // Выполняем Git-команду, чтобы получить имя автора последнего коммита
-                        // Команда: git log -1 --pretty=format:'%an'
                         def authorName = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
 
-                        // Формируем новое имя сборки (например, "Автор - #123")
                         currentBuild.displayName = "${authorName} - #${env.BUILD_NUMBER}"
 
                         // (Опционально) Можно также установить описание сборки, добавив, например, хеш коммита
@@ -24,7 +19,6 @@ pipeline {
         }
         stage('Build Docker image') {
             steps {
-                // Используем bat, потому что это Windows
                 bat 'docker build -t my-pytest-tests .'
             }
         }
